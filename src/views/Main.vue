@@ -2,7 +2,8 @@
 <div id="container">
   <header>
     <div id="main-header">
-      <i class="fas fa-sign-out-alt" @click="logOut"></i>
+      <Button icon="pi pi-sign-out" @click="logOut" class="p-button-rounded p-button-danger p-mr-2 p-mb-2" />
+      <!-- <i class="fas fa-sign-out-alt" @click="logOut"></i> -->
     </div>
   </header>
   <nav>
@@ -16,9 +17,12 @@
 
 <script>
 import Menu from '../components/Menu.vue';
+import Button from 'primevue/button';
+
 export default {
   components: {
-    Menu
+    Menu,
+    Button
   },
   methods: {
     logOut() {
@@ -35,9 +39,10 @@ export default {
     margin:auto;
   }
   header {
-    background-color: coral;
+    background-color: #2c3e50;
     display: flex;
     justify-content: right;
+    padding-top: 8px;
   }
   nav {
     width: 15%;
