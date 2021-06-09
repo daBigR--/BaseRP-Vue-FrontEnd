@@ -2,16 +2,22 @@
 <div class="container">
   <div class="card p-fluid">
     <h5>Login</h5>
-    <div class="p-field p-mt-5">
+    <div class="p-inputgroup p-mt-5">
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-user"></i>
+      </span>
       <span class="p-float-label">
         <InputText id="usr" v-model="usr" type="text" class="p-d-box" />
         <label for="usr">User name</label>
       </span>
     </div>
-    <div class="p-field p-mt-5">
+    <div class="p-inputgroup p-mt-5">
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-key"></i>
+      </span>
       <span class="p-float-label">
-      <InputText id="pwd" v-model="pwd" type="password" class="p-d-box" />
-      <label for="pwd">Password</label>
+        <InputText id="pwd" v-model="pwd" type="password" class="p-d-box" />
+        <label for="pwd">Password</label>
       </span>
     </div>
     <div class="p-mt-5 login-button">
@@ -51,7 +57,7 @@ export default {
 
 <style scoped>
   .container {
-    margin: auto;
+    margin: 50px auto;
     width: 300px;
   }
   .login-button {
@@ -59,11 +65,11 @@ export default {
     margin: auto;
   }
   @media (max-width: 600px) {
-  .container {
-    width: 80%;
-  }
-  .login-button {
-    width: 100%;
-  }
+    .container {
+      width: 80%;
+    }
+    .login-button {
+      width: 100%;
+    }
   }
 </style>
