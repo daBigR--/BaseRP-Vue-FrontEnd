@@ -1,5 +1,6 @@
 <template>
 <div class="container">
+  <form @submit.prevent="login">
   <div class="card p-fluid">
     <h5>Login</h5>
     <div class="p-inputgroup p-mt-5">
@@ -7,7 +8,7 @@
         <i class="pi pi-user"></i>
       </span>
       <span class="p-float-label">
-        <InputText id="usr" v-model="usr" type="text" class="p-d-box" />
+        <InputText required id="usr" name="usr" v-model="usr" type="text" class="p-d-box" />
         <label for="usr">User name</label>
       </span>
     </div>
@@ -16,14 +17,15 @@
         <i class="pi pi-key"></i>
       </span>
       <span class="p-float-label">
-        <InputText id="pwd" v-model="pwd" type="password" class="p-d-box" />
+        <Password id="pwd" name="pwd" v-model="pwd" toggleMask :feedback="false" class="p-d-box" />
         <label for="pwd">Password</label>
       </span>
     </div>
     <div class="p-mt-5 login-button">
-      <Button label="Login" icon="pi pi-sign-in" @click="login" class="p-button-raised " />
+      <Button type="submit" label="Login" icon="pi pi-sign-in" class="p-button-raised " />
     </div>
   </div>
+  </form>
 </div>
 </template>
 
@@ -31,6 +33,7 @@
 // @ is an alias to /src
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
 
 export default {
   name: 'Login',
@@ -41,24 +44,38 @@ export default {
     }
   },
   methods: {
-    login() {
-      if (this.usr && (this.usr === this.pwd)) {
-        this.$store.commit('loggedIn');
-        this.$router.push({ name: 'Main' });
+    async login() {
+      const userDTO = {
+        IdOrganizacion: 1,
+        UserName: this.usr,
+        Password: this.pwd
+      };
+      const resp = await fetch('http://localhost:57258/api/Login/Login', {
+        method: 'POST', 
+        headers: { 'Content-type': 'application/json' },
+        body: JSON.stringify(userDTO)
+      });
+      if (resp.status !== 200) {
+        alert("Username or password incorrect or don't exist.");
+        return;
       }
+      const data = await resp.json();
+      this.$store.commit('loggedIn', data);
+      this.$router.push({ name: 'Main' });
     }
   },
   components: {
     Button,
-    InputText
+    InputText,
+    Password
   }
 }
 </script>
 
 <style scoped>
   .container {
-    margin: 50px auto;
     width: 300px;
+    margin: 50px auto;
   }
   .login-button {
     width: 100px;
