@@ -11,13 +11,17 @@ import router from './router';
 import store from './store';
 
 import PrimeVue from 'primevue/config';
-
 import Ripple from 'primevue/ripple';
+
+import VueCookies from 'vue3-cookies'; 
 
 const app = createApp(App);
 app.use(store);
 app.use(router);
+
 app.use(PrimeVue, { ripple: true });
+
+app.use(VueCookies);
 
 app.directive('ripple', Ripple);
 
