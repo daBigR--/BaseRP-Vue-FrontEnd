@@ -1,5 +1,6 @@
 <template>
-  <h3>This is app1 main page</h3>
+  <h3>This is app1 main page {{ dato.value }}</h3>
+  <button @click="actualizarDato(dato.value + 1)">Incrementar</button>
   <h5>{{ region.Nombre }}</h5>
   <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident ipsum asperiores autem veritatis excepturi voluptates quod dolorum perspiciatis. Vero sit nobis sint quaerat! Quis nostrum id voluptatibus ipsam, minima quibusdam?</p>
 </template>
@@ -11,6 +12,10 @@ export default {
       region: {}
     }  
   },
+  
+  inject: [
+    'dato', 'actualizarDato'
+  ],
 
   async mounted() {
     const idRegion = 13;

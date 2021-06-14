@@ -1,7 +1,16 @@
 <template>
   <router-view />
 </template>
-
+<script>
+export default {
+  created() {
+    const data = this.$cookies.get('userInfo');
+    if (data) {
+      this.$store.commit('loggedIn', data);
+    }
+  }
+}
+</script>
 <style>
 /*
 #app {

@@ -60,8 +60,8 @@ export default {
         return;
       }
       const data = await resp.json();
-      this.$cookies.set('userInfo', data, '8h');
       this.$store.commit('loggedIn', data);
+      this.$cookies.set('userInfo', data, '8h');
       this.$router.push({ name: 'Main' });
     }
   },

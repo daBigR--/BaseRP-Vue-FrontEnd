@@ -19,17 +19,30 @@
 <script>
 import Menu from '../components/Menu.vue';
 import Button from 'primevue/button';
+import { computed } from '@vue/runtime-core';
 
 export default {
-  components: {
-    Menu,
-    Button
+  data() {
+    return {
+      dato: 1
+    }
   },
   methods: {
     logOut() {
       this.$store.commit('loggedOut');
+      this.$cookies.remove('userInfo');
       this.$router.push({ name: 'Login' })
     }
+  },
+  provide() {
+    return {
+      dato: computed( () => this.dato ),
+      actualizarDato: (nuevoValor) => this.dato = nuevoValor
+    }
+  },
+  components: {
+    Menu,
+    Button
   }
 }
 </script>

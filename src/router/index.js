@@ -44,7 +44,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
-  if (to.name !== 'Login' && !store.state.isAuthenticated) {
+  if ((to.name !== 'Login') && (!store.state.isAuthenticated)) {
     return { name: 'Login'};
   }
 });

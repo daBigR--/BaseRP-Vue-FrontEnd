@@ -3,27 +3,37 @@
  
   <div>
     <DataTable
+      ref="dt"
       :value="regiones"
       :lazy="true"
       :paginator="true"
+      :loading="loading"
       :rows="tableRows"
       :rowsPerPageOptions="[5,10,20]"
-      v-model:filters="filters"
-      ref="dt"
+      removableSort
+      v-model:sortField="orderColumn"
       :totalRecords="totalRecords"
-      :loading="loading"
       @page="onPage($event)"
       @sort="onSort($event)"
       @filter="onFilter($event)"
       filterDisplay="menu"
+      v-model:filters="filters"
       :globalFilterFields="['Nombre']"
       responsiveLayout="scroll"
     >
       <template #header>
-        <div style="text-align: left">
+        <div style="text-align: right">
           <Button icon="pi pi-external-link" label="Export" @click="exportCSV" />
         </div>
       </template>
+      <Column
+        header="Editar"
+        :exportable="false"
+      >
+        <template #body="slotProps">
+          <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editRegion(slotProps.data)" />
+        </template>
+      </Column>
       <Column
         field="Nombre"
         header="Nombre"
@@ -44,9 +54,19 @@
       <Column
         field="Vigente"
         header="Vigente"
+        filterMatchMode="equals"
         ref="Vigente"
         :sortable="true"
       >
+        <template #filter="{filterModel}">
+          <Checkbox
+            name="filtroVigente"
+            v-model="filterModel.value"
+            class="p-column-filter"
+            :binary="true"
+          />
+          <label class="p-ml-2" for="filtroVigente">Vigente</label>
+        </template>                    
         <template #body="slotProps">
           {{ slotProps.data.Vigente ? 'Si' : 'No'}}
         </template>
@@ -54,6 +74,38 @@
     </DataTable>
 </div>
 
+<div>
+  <Dialog
+    header="Editar Región"
+    v-model:visible="displayRegionDialog"
+    :style="{width: '50vw'}"
+    :modal="true"
+  >
+
+    <form>
+    <div class="card p-fluid">
+      <div class="p-inputgroup p-mt-5">
+        <span class="p-float-label">
+          <InputText id="NombreRegion" name="NombreRegion" v-model="region.Nombre" type="text" class="p-d-box" />
+          <label for="NombreRegion">Nombre región</label>
+        </span>
+      </div>
+      <div class="p-inputgroup p-mt-5">
+        <div class="p-field-checkbox">
+          <Checkbox id="RegionVigente" v-model="region.Vigente" :binary="true" />
+          <label for="RegionVigente">Vigente</label>
+        </div>
+      </div>
+    </div>
+    </form>
+
+
+    <template #footer>
+      <Button label="Cancelar" icon="pi pi-times" @click="closeRegionDialog" class="p-button-text"/>
+      <Button label="Grabar" icon="pi pi-check" @click="closeRegionDialog" autofocus />
+    </template>
+  </Dialog>
+</div>
 </template>
 
 <script>
@@ -61,18 +113,27 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
+import Checkbox from 'primevue/checkbox';
 
 export default {
   data() {
     return {
       regiones: null,
       filters: {
-        'Nombre': {value: '', matchMode: 'contains'}
+        'Nombre': {value: '', matchMode: 'contains'},
+        'Vigente': {value: false, matchMode: 'equals'}
       },
       totalRecords: 0,
       tableRows: 5,
       loading: false,
-      parameters: {}
+      parameters: {},
+      orderColumn: null,
+      displayRegionDialog: false,
+      region: {
+        Nombre: '',
+        Vigente: false
+      }
     }  
   },
 
@@ -102,6 +163,7 @@ export default {
       this.totalRecords = data.iTotalRecords;
     },
     onPage(e) {
+      this.loading = true;
       this.tableRows = e.rows;
       this.parameters.iDisplayStart = e.first;
       this.parameters.iDisplayLength = this.tableRows;
@@ -110,8 +172,18 @@ export default {
     },
     onSort(e) {
       this.loading = true;
-      this.parameters.iSortCol_0 = e.sortField === 'Nombre' ? 1 : null;
-      this.parameters.sSortDir_0 = e.sortOrder === 1 ? 'asc' : 'desc';
+      switch (e.sortField) {
+        case 'Nombre':
+          this.parameters.iSortCol_0 = 1;
+          break;
+        case 'Vigente':
+          this.parameters.iSortCol_0 = 2;
+          break;
+       default:
+          this.parameters.iSortCol_0 = 0;
+          break;
+      }
+      this.parameters.sSortDir_0 = e.sortOrder === -1 ? 'desc' : 'asc';
       this.parameters.iDisplayStart = 0;
       this.parameters.iDisplayLength = this.tableRows;
       this.fetchData(this.parameters);
@@ -125,6 +197,14 @@ export default {
       this.fetchData(this.parameters);
       this.loading = false;
     },
+    editRegion(data) {
+      this.region.Nombre = data.Nombre;
+      this.region.Vigente = data.Vigente;
+      this.displayRegionDialog = true;
+    },
+    closeRegionDialog() {
+      this.displayRegionDialog = false;
+    },
     exportCSV() {
       this.$refs.dt.exportCSV();
     }
@@ -134,7 +214,9 @@ export default {
     DataTable,
     Column,
     InputText,
-    Button
+    Button,
+    Dialog,
+    Checkbox
   }
 
 }
