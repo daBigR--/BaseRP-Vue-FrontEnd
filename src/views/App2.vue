@@ -22,8 +22,13 @@
       responsiveLayout="scroll"
     >
       <template #header>
-        <div style="text-align: right">
-          <Button icon="pi pi-external-link" label="Export" @click="exportCSV" />
+        <div style="display: flex; justify-content: space-between">
+          <div>
+           <Button icon="pi pi-filter-slash" label="Sin filtros" @click="eliminarFiltros" />
+          </div>
+          <div>
+           <Button icon="pi pi-external-link" label="Export" @click="exportCSV" />
+          </div>
         </div>
       </template>
       <Column
@@ -38,6 +43,7 @@
         field="Nombre"
         header="Nombre"
         filterMatchMode="contains"
+        :filterMatchModeOptions="nombreMatchModeOptions"
         ref="Nombre"
         :sortable="true"
       >  
@@ -99,10 +105,9 @@
     </div>
     </form>
 
-
     <template #footer>
       <Button label="Cancelar" icon="pi pi-times" @click="closeRegionDialog" class="p-button-text"/>
-      <Button label="Grabar" icon="pi pi-check" @click="closeRegionDialog" autofocus />
+      <Button label="Grabar" icon="pi pi-check" @click="saveRegion" autofocus />
     </template>
   </Dialog>
 </div>
@@ -122,7 +127,7 @@ export default {
       regiones: null,
       filters: {
         'Nombre': {value: '', matchMode: 'contains'},
-        'Vigente': {value: false, matchMode: 'equals'}
+        'Vigente': {value: null, matchMode: 'equals'}
       },
       totalRecords: 0,
       tableRows: 5,
@@ -131,29 +136,36 @@ export default {
       orderColumn: null,
       displayRegionDialog: false,
       region: {
+        IdRegion: null,
         Nombre: '',
-        Vigente: false
-      }
+        Vigente: null
+      },
+      nombreMatchModeOptions: [
+        {label: 'Contiene', value: 'contains'}
+      ]
     }  
   },
 
   async mounted() {
     this.loading = true;
-    this.parameters = {
-      iDisplayStart: 0,
-      iDisplayLength: this.tableRows,
-      sSearch_a: 1,
-      sSearch: '',
-      iSortCol_0: 0,
-      sSortDir_0: 'asc'
-    };
+    this.resetParameters();
     this.fetchData(this.parameters);
     this.loading = false;
   },
 
   methods: {
+    resetParameters() {
+      this.parameters = {
+        iDisplayStart: 0,
+        iDisplayLength: this.tableRows,
+        sSearch_a: 1,
+        sSearch: '',
+        iSortCol_0: 0,
+        sSortDir_0: 'asc'
+      };
+    },
     async fetchData(parameters) {
-      const resp = await fetch('http://localhost:57258/api/Region/GetRegionPaging', {
+      const resp = await fetch('api/Region/GetRegionPaging', {
         method: 'POST',
         headers: { 'Content-type': 'application/json', 'Authorization': this.$store.state.token },
         body: JSON.stringify(parameters)
@@ -198,6 +210,7 @@ export default {
       this.loading = false;
     },
     editRegion(data) {
+      this.region.IdRegion = data.IdRegion;
       this.region.Nombre = data.Nombre;
       this.region.Vigente = data.Vigente;
       this.displayRegionDialog = true;
@@ -205,11 +218,29 @@ export default {
     closeRegionDialog() {
       this.displayRegionDialog = false;
     },
+    async saveRegion() {
+      const regionDTO = this.region;
+		  regionDTO.UsuarioModifico = this.$store.state.userName;
+      const resp = await fetch('api/Region/Save', {
+        method: 'POST',
+        headers: { 'Content-type': 'application/json', 'Authorization': this.$store.state.token },
+        body: JSON.stringify(regionDTO)
+      });
+      if (resp.status !== 200) {
+        alert('Error al actualizar región');
+        return;
+      }
+      this.resetParameters();
+      this.fetchData(this.parameters);
+      this.displayRegionDialog = false;
+    },
     exportCSV() {
       this.$refs.dt.exportCSV();
+    },
+    eliminarFiltros() {
+      
     }
   },
-
   components: {
     DataTable,
     Column,

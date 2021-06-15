@@ -19,7 +19,7 @@ export default {
 
   async mounted() {
     const idRegion = 13;
-    const resp = await fetch(`http://localhost:57258/api/Region/GetById?IdRegion=${encodeURIComponent(idRegion)}`, {
+    const resp = await fetch(`api/Region/GetById?IdRegion=${encodeURIComponent(idRegion)}`, {
       headers: { 'Authorization': this.$store.state.token }
     });
     this.region = await resp.json();

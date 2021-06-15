@@ -7,7 +7,7 @@
     </div>
   </header>
   <nav>
-    <h5>{{ $store.state.userName }}</h5>
+    <h5>{{ $store.state.nombreUsuario }}</h5>
     <Menu />
   </nav>
   <main>
