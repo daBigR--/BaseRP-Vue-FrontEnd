@@ -1,5 +1,5 @@
 <template>
-  <h3>This is App 2 main page</h3>
+  <h3 class="p-pl-3">Regiones</h3>
  
   <div>
     <DataTable
@@ -20,16 +20,24 @@
       v-model:filters="filters"
       :globalFilterFields="['Nombre']"
       responsiveLayout="scroll"
+      class="p-datatable-striped"
     >
       <template #header>
         <div style="display: flex; justify-content: space-between">
           <div>
-           <Button icon="pi pi-filter-slash" label="Sin filtros" @click="eliminarFiltros" />
+            <Button class="p-button-raised p-button-text" icon="pi pi-plus" label="Crear región" @click="addRegion" />
           </div>
           <div>
-           <Button icon="pi pi-external-link" label="Export" @click="exportCSV" />
+            <Button class="p-button-raised p-button-text p-mr-2" icon="pi pi-filter-slash" label="Sin filtros" @click="eliminarFiltros" />
+            <Button class="p-button-raised p-button-text" icon="pi pi-external-link" label="Exportar" @click="exportCSV" />
           </div>
         </div>
+      </template>
+      <template #empty>
+        <h3>No hay registros.</h3>
+      </template>
+      <template #loading>
+        <h3>Cargando registros. Espere.</h3>
       </template>
       <Column
         header="Editar"
@@ -82,7 +90,7 @@
 
 <div>
   <Dialog
-    header="Editar Región"
+    header="Región"
     v-model:visible="displayRegionDialog"
     :style="{width: '50vw'}"
     :modal="true"
@@ -125,14 +133,11 @@ export default {
   data() {
     return {
       regiones: null,
-      filters: {
-        'Nombre': {value: '', matchMode: 'contains'},
-        'Vigente': {value: null, matchMode: 'equals'}
-      },
+      filters: {},
       totalRecords: 0,
       tableRows: 5,
       loading: false,
-      parameters: {},
+      getRegionPagingParams: {},
       orderColumn: null,
       displayRegionDialog: false,
       region: {
@@ -149,13 +154,14 @@ export default {
   async mounted() {
     this.loading = true;
     this.resetParameters();
-    this.fetchData(this.parameters);
+    this.resetFilters();
+    this.fetchData();
     this.loading = false;
   },
 
   methods: {
     resetParameters() {
-      this.parameters = {
+      this.getRegionPagingParams = {
         iDisplayStart: 0,
         iDisplayLength: this.tableRows,
         sSearch_a: 1,
@@ -164,11 +170,17 @@ export default {
         sSortDir_0: 'asc'
       };
     },
-    async fetchData(parameters) {
+    resetFilters() {
+      this.filters = {
+        'Nombre': {value: '', matchMode: 'contains'},
+        'Vigente': {value: null, matchMode: 'equals'}
+      }
+    },
+    async fetchData() {
       const resp = await fetch('api/Region/GetRegionPaging', {
         method: 'POST',
         headers: { 'Content-type': 'application/json', 'Authorization': this.$store.state.token },
-        body: JSON.stringify(parameters)
+        body: JSON.stringify(this.getRegionPagingParams)
       });
       const data = await resp.json();
       this.regiones = data.aaData;
@@ -177,45 +189,48 @@ export default {
     onPage(e) {
       this.loading = true;
       this.tableRows = e.rows;
-      this.parameters.iDisplayStart = e.first;
-      this.parameters.iDisplayLength = this.tableRows;
-      this.fetchData(this.parameters);
+      this.getRegionPagingParams.iDisplayStart = e.first;
+      this.getRegionPagingParams.iDisplayLength = this.tableRows;
+      this.fetchData();
       this.loading = false;
     },
     onSort(e) {
       this.loading = true;
       switch (e.sortField) {
         case 'Nombre':
-          this.parameters.iSortCol_0 = 1;
+          this.getRegionPagingParams.iSortCol_0 = 1;
           break;
         case 'Vigente':
-          this.parameters.iSortCol_0 = 2;
+          this.getRegionPagingParams.iSortCol_0 = 2;
           break;
-       default:
-          this.parameters.iSortCol_0 = 0;
+        default:
+          this.getRegionPagingParams.iSortCol_0 = 0;
           break;
       }
-      this.parameters.sSortDir_0 = e.sortOrder === -1 ? 'desc' : 'asc';
-      this.parameters.iDisplayStart = 0;
-      this.parameters.iDisplayLength = this.tableRows;
-      this.fetchData(this.parameters);
+      this.getRegionPagingParams.sSortDir_0 = e.sortOrder === -1 ? 'desc' : 'asc';
+      this.getRegionPagingParams.iDisplayStart = 0;
+      this.getRegionPagingParams.iDisplayLength = this.tableRows;
+      this.fetchData();
       this.loading = false;
     },
     onFilter(e) {
       this.loading = true;
-      this.parameters.sSearch = e.filters.Nombre.value;
-      this.parameters.iDisplayStart = 0;
-      this.parameters.iDisplayLength = this.tableRows;
-      this.fetchData(this.parameters);
+      this.getRegionPagingParams.sSearch = e.filters.Nombre.value;
+      this.getRegionPagingParams.iDisplayStart = 0;
+      this.getRegionPagingParams.iDisplayLength = this.tableRows;
+      this.fetchData();
       this.loading = false;
     },
+    addRegion() {
+      this.region = {};
+      this.displayRegionDialog = true;
+    },
     editRegion(data) {
-      this.region.IdRegion = data.IdRegion;
-      this.region.Nombre = data.Nombre;
-      this.region.Vigente = data.Vigente;
+      this.region = data;
       this.displayRegionDialog = true;
     },
     closeRegionDialog() {
+      this.region = {};
       this.displayRegionDialog = false;
     },
     async saveRegion() {
@@ -231,14 +246,18 @@ export default {
         return;
       }
       this.resetParameters();
-      this.fetchData(this.parameters);
+      this.fetchData();
       this.displayRegionDialog = false;
     },
     exportCSV() {
       this.$refs.dt.exportCSV();
     },
     eliminarFiltros() {
-      
+      this.loading = true;
+      this.resetParameters();
+      this.resetFilters();
+      this.fetchData();
+      this.loading = false;
     }
   },
   components: {
