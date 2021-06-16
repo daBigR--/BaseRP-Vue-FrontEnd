@@ -1,30 +1,63 @@
 <template>
-  <div class="menu">
-    <p><router-link :to="{ name: 'App1'}">App 1</router-link></p>
-    <p><router-link :to="{ name: 'App2'}">App 2</router-link></p>
+	<div class="layout-menu-container">
+
+    <PanelMenu :model="menuItems" />
+    <!-- <p><router-link :to="{ name: 'App1'}">App 1</router-link></p>
+    <p><router-link :to="{ name: 'App2'}">App 2</router-link></p> -->
   </div>
 </template>
 
 <script>
+import PanelMenu from 'primevue/panelmenu';
+
 export default {
-  name: 'Menu'
+  name: 'Menu',
+  data() {
+    return {
+      menuItems: [
+        {
+          label: 'Inicio',
+          icon: 'pi pi-home',
+          to: { name: 'Main' }
+        },
+        {
+          label: 'Administración',
+          icon: 'pi pi-cog',
+          items: [
+            { label: 'Región',
+              icon: 'pi pi-map-marker',
+              to: { name: 'App2' }
+            }
+          ]
+        },
+        {
+          label: 'Seguridad',
+          icon: 'pi pi-id-card',
+          items: [
+            { label: 'Usuarios',
+              icon: 'pi pi-user-plus',
+              to: { name: 'App1' }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  components: {
+    PanelMenu
+  }
 }
 </script>
 
 <style scoped>
 
-.menu {
-  padding: 30px;
-  background-color: #2c3e50;
-}
-
-.menu a {
+a {
   font-weight: bold;
   text-decoration: none;
-  color: white;
+  color: black;
 }
 
-.menu a.router-link-active, a.router-link-exact-active {
+a.router-link-active, a.router-link-exact-active {
   color: lightseagreen;
 }
 
