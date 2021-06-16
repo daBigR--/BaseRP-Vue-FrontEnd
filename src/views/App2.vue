@@ -29,6 +29,10 @@
                 <Button class="p-button-raised p-button-text" icon="pi pi-plus" label="Crear región" @click="addRegion" />
               </div>
               <div>
+                <span class="p-input-icon-left p-mr-2">
+                  <i class="pi pi-search" />
+                  <InputText type="text" v-model="filters['global'].value" placeholder="Buscar" @keydown.enter="globalFilter" />
+                </span>
                 <Button class="p-button-raised p-button-text p-mr-2" icon="pi pi-filter-slash" label="Sin filtros" @click="eliminarFiltros" />
                 <Button class="p-button-raised p-button-text" icon="pi pi-external-link" label="Exportar" @click="exportCSV" />
               </div>
@@ -136,7 +140,7 @@ export default {
   data() {
     return {
       regiones: null,
-      filters: {},
+      filters: {'global': {value: null, matchMode: 'contains'}},
       totalRecords: 0,
       tableRows: 5,
       loading: false,
@@ -175,7 +179,8 @@ export default {
     },
     resetFilters() {
       this.filters = {
-        'Nombre': {value: '', matchMode: 'contains'},
+        'global': {value: null, matchMode: 'contains'},
+        'Nombre': {value: null, matchMode: 'contains'},
         'Vigente': {value: null, matchMode: 'equals'}
       }
     },
@@ -224,6 +229,21 @@ export default {
       this.fetchData();
       this.loading = false;
     },
+    eliminarFiltros() {
+      this.loading = true;
+      this.resetParameters();
+      this.resetFilters();
+      this.fetchData();
+      this.loading = false;
+    },
+    globalFilter() {
+      this.loading = true;
+      this.getRegionPagingParams.sSearch = this.filters['global'].value;
+      this.getRegionPagingParams.iDisplayStart = 0;
+      this.getRegionPagingParams.iDisplayLength = this.tableRows;
+      this.fetchData();
+      this.loading = false;
+    },
     addRegion() {
       this.region = {};
       this.displayRegionDialog = true;
@@ -254,13 +274,6 @@ export default {
     },
     exportCSV() {
       this.$refs.dt.exportCSV();
-    },
-    eliminarFiltros() {
-      this.loading = true;
-      this.resetParameters();
-      this.resetFilters();
-      this.fetchData();
-      this.loading = false;
     }
   },
   components: {
