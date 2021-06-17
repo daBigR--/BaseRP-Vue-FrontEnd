@@ -21,7 +21,10 @@
           v-model:filters="filters"
           :globalFilterFields="['Nombre']"
           responsiveLayout="scroll"
-          class="p-datatable-striped"
+          class="p-datatable-sm"
+          stripedRows
+          paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+          currentPageReportTemplate="De un total de {totalRecords} filas ({first} a {last})"
         >
           <template #header>
             <div class="p-d-flex p-jc-between">
@@ -49,7 +52,7 @@
             :exportable="false"
           >
             <template #body="slotProps">
-              <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editRegion(slotProps.data)" />
+              <Button icon="pi pi-pencil" class="p-button-rounded p-button-success" @click="editRegion(slotProps.data)" />
             </template>
           </Column>
           <Column
@@ -87,7 +90,7 @@
               <label class="p-ml-2" for="filtroVigente">Vigente</label>
             </template>                    
             <template #body="slotProps">
-              {{ slotProps.data.Vigente ? 'Si' : 'No'}}
+              <span>{{ slotProps.data.Vigente ? 'Si' : 'No'}}</span>
             </template>
           </Column>
         </DataTable>
@@ -99,7 +102,7 @@
     <Dialog
       header="Región"
       v-model:visible="displayRegionDialog"
-      :style="{width: '50vw'}"
+      :style="{width: '40vw'}"
       :modal="true"
     >
 
@@ -131,10 +134,12 @@
 <script>
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
-import Dialog from 'primevue/dialog';
 import Checkbox from 'primevue/checkbox';
+
+import Dialog from 'primevue/dialog';
 
 export default {
   data() {

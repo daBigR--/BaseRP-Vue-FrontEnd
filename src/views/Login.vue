@@ -62,7 +62,11 @@ export default {
       const data = await resp.json();
       this.$store.commit('loggedIn', data);
       this.$cookies.set('userInfo', data, '8h');
-      this.$router.push({ name: 'Main' });
+      if (this.$route.params.previousRoute) {
+        this.$router.push({ name: this.$route.params.previousRoute });
+      } else {
+        this.$router.push({ name: 'Main' });
+      }
     }
   },
   components: {

@@ -35,6 +35,11 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/login/:previousRoute',
+    name: 'Login2',
+    component: Login
   }
 ]
 
@@ -44,8 +49,10 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
-  if ((to.name !== 'Login') && (!store.state.isAuthenticated)) {
-    return { name: 'Login'};
+  if ((to.name !== 'Login') && (to.name !== 'Login2') && (!store.state.isAuthenticated)) {
+    console.log(to);
+    console.log(from);
+    return { name: 'Login2', params: { previousRoute: to.name } };
   }
 });
 
