@@ -21,6 +21,7 @@ import UserProfile from '../components/UserProfile.vue'
 import Menu from '../components/Menu.vue';
 import Button from 'primevue/button';
 import { computed } from '@vue/runtime-core';
+import { useCookie } from "@vue-composable/cookie";
 
 export default {
   data() {
@@ -31,7 +32,8 @@ export default {
   methods: {
     logOut() {
       this.$store.commit('loggedOut');
-      this.$cookies.remove('userInfo');
+      const { removeCookie } = useCookie('userInfo');
+      removeCookie();
       this.$router.push({ name: 'Login' })
     },
     onMenuToggle() {}

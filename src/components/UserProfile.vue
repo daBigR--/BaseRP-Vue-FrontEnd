@@ -17,6 +17,8 @@
 </template>
 
 <script>
+  import { useCookie } from "@vue-composable/cookie";
+
   export default {
     data() {
       return {
@@ -26,7 +28,8 @@
     methods: {
       logOut() {
         this.$store.commit('loggedOut');
-        this.$cookies.remove('userInfo');
+        const { removeCookie } = useCookie('userInfo');
+        removeCookie();
         this.$router.push({ name: 'Login' })
       },
       onClick(event){

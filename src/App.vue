@@ -1,24 +1,23 @@
 <template>
   <router-view />
 </template>
+
+
 <script>
+import { useStore } from 'vuex';
+import { useCookie } from "@vue-composable/cookie";
+
 export default {
-  created() {
-    const data = this.$cookies.get('userInfo');
-    if (data) {
-      this.$store.commit('loggedIn', data);
+  setup() {
+    const store = useStore();
+    const { cookie } = useCookie("userInfo");
+    if (cookie.value) {
+      const data = JSON.parse(cookie.value);
+      store.commit('loggedIn', data);
     }
   }
 }
 </script>
+
 <style>
-/*
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-*/
 </style>

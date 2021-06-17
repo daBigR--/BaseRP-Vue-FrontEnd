@@ -35,6 +35,8 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 
+import { useCookie } from "@vue-composable/cookie";
+
 export default {
   name: 'Login',
   data() {
@@ -61,7 +63,8 @@ export default {
       }
       const data = await resp.json();
       this.$store.commit('loggedIn', data);
-      this.$cookies.set('userInfo', data, '8h');
+      const { setCookie } = useCookie("userInfo");
+      setCookie(data, {expires: 0.25, SameSite: 'Lax'});
       if (this.$route.params.previousRoute) {
         this.$router.push({ name: this.$route.params.previousRoute });
       } else {
