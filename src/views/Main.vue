@@ -52,25 +52,5 @@ export default {
 </script>
 
 <style scoped>
-  /* #container {
-    width:80%;
-    margin:auto;
-  } */
-  /* header {
-    background-color: #2c3e50;
-    display: flex;
-    justify-content: right;
-    padding-top: 8px;
-  } */
-  nav {
-    width: 15%;
-    float: left;
-    box-sizing: border-box;
-  }
 
-  main {
-    width: 85%;
-    float: right;
-    box-sizing: border-box;
-  }
 </style>

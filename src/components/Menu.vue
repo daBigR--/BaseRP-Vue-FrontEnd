@@ -1,9 +1,6 @@
 <template>
 	<div class="layout-menu-container">
-
     <PanelMenu :model="menuItems" />
-    <!-- <p><router-link :to="{ name: 'App1'}">App 1</router-link></p>
-    <p><router-link :to="{ name: 'App2'}">App 2</router-link></p> -->
   </div>
 </template>
 
@@ -26,7 +23,7 @@ export default {
           items: [
             { label: 'Región',
               icon: 'pi pi-map-marker',
-              to: { name: 'App2' }
+              to: { name: 'Region' }
             }
           ]
         },
@@ -36,7 +33,7 @@ export default {
           items: [
             { label: 'Usuarios',
               icon: 'pi pi-user-plus',
-              to: { name: 'App1' }
+              to: { name: 'Usuario' }
             }
           ]
         }

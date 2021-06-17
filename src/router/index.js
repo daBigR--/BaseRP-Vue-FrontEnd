@@ -18,14 +18,14 @@ const routes = [
           component: Empty
         },
         {
-          path: 'app1',
-          name: 'App1',
-          component: () => import(/* webpackChunkName: "app1" */ '../views/App1.vue'),
+          path: 'usuario',
+          name: 'Usuario',
+          component: () => import(/* webpackChunkName: "Usuario" */ '../views/Usuario.vue'),
         },
         {
-          path: 'app2',
-          name: 'App2',
-          component: () => import(/* webpackChunkName: "app2" */ '../views/App2.vue'),
+          path: 'region',
+          name: 'Region',
+          component: () => import(/* webpackChunkName: "Region" */ '../views/Region.vue'),
         }
   
       ]
@@ -49,9 +49,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
-  if ((to.name !== 'Login') && (to.name !== 'Login2') && (!store.state.isAuthenticated)) {
-    console.log(to);
-    console.log(from);
+  if ((!store.state.isAuthenticated) && (to.name !== 'Login') && (to.name !== 'Login2')) {
     return { name: 'Login2', params: { previousRoute: to.name } };
   }
 });
