@@ -52,7 +52,7 @@
             :exportable="false"
           >
             <template #body="slotProps">
-              <Button icon="pi pi-pencil" class="p-button-rounded p-button-success" @click="editUsuario(slotProps.data)" />
+              <Button icon="pi pi-pencil" class="p-button-rounded p-button-success" @click="editUsuario(slotProps.data.IdUsuario)" />
             </template>
           </Column>
           <Column
@@ -144,6 +144,12 @@
 
       <form>
       <div class="card p-fluid">
+        <div class="p-inputgroup p-mt-1">
+          <span class="p-float-label">
+            <Dropdown v-model="usuario.IdOrganizacion" :options="organizaciones" optionLabel="Nombre" optionValue="IdOrganizacion" placeholder="" />
+            <label for="Organizacion">Organización</label>
+          </span>
+        </div>
         <div class="p-inputgroup p-mt-5">
           <span class="p-float-label">
             <InputText id="NombreCompleto" name="NombreCompleto" v-model="usuario.NombreCompleto" type="text" class="p-d-box" />
@@ -162,7 +168,22 @@
             <label for="Email">Correo electrónico</label>
           </span>
         </div>
+        <div class="p-mt-2">
+        <label for="perfiles" class="p-ml-2" style="font-size: 12px;">Perfiles</label>          
+        <div id="perfiles" class="p-grid p-mt-2 p-mx-1">
+          <div v-for="perfil of perfiles" :key="perfil.IdPerfil" class="p-col-6 p-field-checkbox">
+            <Checkbox :id="perfil.IdPerfil" name="perfil" :value="perfil" v-model="usuario.Perfiles" />
+            <label :for="perfil.IdPerfil">{{perfil.Nombre}}</label>
+          </div>
+        </div>
+        </div>
         <div class="p-inputgroup p-mt-5">
+          <div class="p-field-checkbox">
+            <Checkbox id="ValidaEnAD" v-model="usuario.ValidaEnAD" :binary="true" />
+            <label for="Vigente">Valida en AD</label>
+          </div>
+        </div>
+        <div class="p-inputgroup p-mt-2">
           <div class="p-field-checkbox">
             <Checkbox id="Vigente" v-model="usuario.Vigente" :binary="true" />
             <label for="Vigente">Vigente</label>
@@ -186,6 +207,7 @@ import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
+import Dropdown from 'primevue/dropdown';
 
 import Dialog from 'primevue/dialog';
 
@@ -202,10 +224,21 @@ export default {
       displayUsuarioDialog: false,
       usuario: {
         IdUsuario: null,
-        NombreCompleto: '',
-        UserName: '',
-        Email: '',
-        Vigente: null
+        NombreCompleto: null,
+        UserName: null,
+        Email: null,
+        ValidaEnAD: null,
+        Vigente: null,
+        IdOrganizacion: null,
+        Perfiles: null
+      },
+      perfiles: {
+        IdPerfil: null,
+        Nombre: null
+      },
+      organizaciones: {
+        IdOrganizacion: null,
+        Nombre: null
       },
       nombreMatchModeOptions: [
         {label: 'Contiene', value: 'contains'}
@@ -316,8 +349,17 @@ export default {
       this.usuario = {};
       this.displayUsuarioDialog = true;
     },
-    editUsuario(data) {
-      this.usuario = data;
+    async editUsuario(IdUsuario) {
+      const resp = await fetch(`api/Usuario/GetById/?IdUsuario=${IdUsuario}`, {
+        headers: { 'Authorization': this.$store.state.token },
+      });
+      const usuarioDTO = await resp.json();
+      this.perfiles = usuarioDTO.PerfilesCbo;
+      this.organizaciones = usuarioDTO.Organizaciones;
+      delete usuarioDTO.PerfilesCbo;
+      delete usuarioDTO.Organizaciones;
+      this.usuario = usuarioDTO;
+      this.usuario.Perfiles = this.perfiles.filter(perfil => usuarioDTO.Perfiles.includes(perfil.IdPerfil));
       this.displayUsuarioDialog = true;
     },
     closeUsuarioDialog() {
@@ -325,11 +367,11 @@ export default {
       this.displayUsuarioDialog = false;
     },
     async saveUsuario() {
-      const usuarioDTO = this.usuario;
+      this.usuario.Perfiles = this.usuario.Perfiles.map(perfil => perfil.IdPerfil);
       const resp = await fetch('api/Usuario/Save', {
         method: 'POST',
         headers: { 'Content-type': 'application/json', 'Authorization': this.$store.state.token },
-        body: JSON.stringify(usuarioDTO)
+        body: JSON.stringify(this.usuario)
       });
       if (resp.status !== 200) {
         alert('Error al grabar usuario.');
@@ -349,7 +391,8 @@ export default {
     InputText,
     Button,
     Dialog,
-    Checkbox
+    Checkbox,
+    Dropdown
   }
 
 }
@@ -359,4 +402,8 @@ export default {
 	.p-datatable .p-column-filter {
 		display: none;
 	}
+  #perfiles {
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+  }
 </style>
