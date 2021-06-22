@@ -98,37 +98,8 @@
     </div>
   </div>
 
-  <div>
-    <Dialog
-      header="Región"
-      v-model:visible="displayRegionDialog"
-      :style="{width: '40vw'}"
-      :modal="true"
-    >
+  <RegionDialog v-model="region" v-model:visible="displayRegionDialog" @action="regionDialogAction" />
 
-      <form>
-      <div class="card p-fluid">
-        <div class="p-inputgroup p-mt-5">
-          <span class="p-float-label">
-            <InputText id="NombreRegion" name="NombreRegion" v-model="region.Nombre" type="text" class="p-d-box" />
-            <label for="NombreRegion">Nombre región</label>
-          </span>
-        </div>
-        <div class="p-inputgroup p-mt-5">
-          <div class="p-field-checkbox">
-            <Checkbox id="RegionVigente" v-model="region.Vigente" :binary="true" />
-            <label for="RegionVigente">Vigente</label>
-          </div>
-        </div>
-      </div>
-      </form>
-
-      <template #footer>
-        <Button label="Cancelar" icon="pi pi-times" @click="closeRegionDialog" class="p-button-text"/>
-        <Button label="Grabar" icon="pi pi-check" @click="saveRegion" autofocus />
-      </template>
-    </Dialog>
-  </div>
 </template>
 
 <script>
@@ -139,7 +110,7 @@ import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 
-import Dialog from 'primevue/dialog';
+import RegionDialog from '@/components/RegionDialog.vue';
 
 export default {
   data() {
@@ -199,6 +170,7 @@ export default {
       this.regiones = data.aaData;
       this.totalRecords = data.iTotalRecords;
     },
+
     onPage(e) {
       this.loading = true;
       this.tableRows = e.rows;
@@ -234,6 +206,7 @@ export default {
       this.fetchData();
       this.loading = false;
     },
+
     eliminarFiltros() {
       this.loading = true;
       this.resetParameters();
@@ -249,36 +222,26 @@ export default {
       this.fetchData();
       this.loading = false;
     },
+    
+    exportCSV() {
+      this.$refs.dt.exportCSV();
+    },
+
     addRegion() {
       this.region = {};
       this.displayRegionDialog = true;
     },
     editRegion(data) {
-      this.region = data;
+      this.region = {...data};
       this.displayRegionDialog = true;
     },
-    closeRegionDialog() {
-      this.region = {};
+    regionDialogAction(e) {
       this.displayRegionDialog = false;
-    },
-    async saveRegion() {
-      const regionDTO = this.region;
-		  regionDTO.UsuarioModifico = this.$store.state.userName;
-      const resp = await fetch('api/Region/Save', {
-        method: 'POST',
-        headers: { 'Content-type': 'application/json', 'Authorization': this.$store.state.token },
-        body: JSON.stringify(regionDTO)
-      });
-      if (resp.status !== 200) {
-        alert('Error al actualizar región');
-        return;
+      if (e === 'save') {
+        this.resetParameters();
+        this.fetchData();
+        this.$refs.dt.resetPage();
       }
-      this.resetParameters();
-      this.fetchData();
-      this.displayRegionDialog = false;
-    },
-    exportCSV() {
-      this.$refs.dt.exportCSV();
     }
   },
   components: {
@@ -286,8 +249,8 @@ export default {
     Column,
     InputText,
     Button,
-    Dialog,
-    Checkbox
+    Checkbox,
+    RegionDialog
   }
 
 }
