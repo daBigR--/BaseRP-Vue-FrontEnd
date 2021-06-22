@@ -115,22 +115,24 @@ import RegionDialog from '@/components/RegionDialog.vue';
 export default {
   data() {
     return {
-      regiones: null,
-      filters: {'global': {value: null, matchMode: 'contains'}},
-      totalRecords: 0,
-      tableRows: 5,
-      loading: false,
-      getRegionPagingParams: {},
-      orderColumn: null,
-      displayRegionDialog: false,
       region: {
         IdRegion: null,
         Nombre: '',
         Vigente: null
       },
-      nombreMatchModeOptions: [
-        {label: 'Contiene', value: 'contains'}
-      ]
+      regiones: null,
+
+      loading: false,
+      totalRecords: 0,
+      tableRows: 5,
+      orderColumn: null,
+
+      getRegionPagingParams: {},
+
+      displayRegionDialog: false,
+
+      filters: {'global': {value: null, matchMode: 'contains'}},
+      nombreMatchModeOptions: [{label: 'Contiene', value: 'contains'}]
     }  
   },
 
@@ -222,7 +224,7 @@ export default {
       this.fetchData();
       this.loading = false;
     },
-    
+
     exportCSV() {
       this.$refs.dt.exportCSV();
     },

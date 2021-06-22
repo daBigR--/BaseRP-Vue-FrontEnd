@@ -134,70 +134,14 @@
     </div>
   </div>
 
-  <div>
-    <Dialog
-      header="Usuario"
-      v-model:visible="displayUsuarioDialog"
-      :style="{width: '40vw'}"
-      :modal="true"
-    >
+  <UsuarioDialog
+    v-model="usuario"
+    :organizaciones="organizaciones"
+    :perfiles="perfiles"
+    v-model:visible="displayUsuarioDialog"
+    @action="usuarioDialogAction"
+  />
 
-      <form>
-      <div class="card p-fluid">
-        <div class="p-inputgroup p-mt-1">
-          <span class="p-float-label">
-            <Dropdown v-model="usuario.IdOrganizacion" :options="organizaciones" optionLabel="Nombre" optionValue="IdOrganizacion" placeholder="" />
-            <label for="Organizacion">Organización</label>
-          </span>
-        </div>
-        <div class="p-inputgroup p-mt-5">
-          <span class="p-float-label">
-            <InputText id="NombreCompleto" name="NombreCompleto" v-model="usuario.NombreCompleto" type="text" class="p-d-box" />
-            <label for="NombreCompleto">Nombre completo</label>
-          </span>
-        </div>
-        <div class="p-inputgroup p-mt-5">
-          <span class="p-float-label">
-            <InputText id="UserName" name="UserName" v-model="usuario.UserName" type="text" class="p-d-box" />
-            <label for="UserName">Nombre usuario</label>
-          </span>
-        </div>
-        <div class="p-inputgroup p-mt-5">
-          <span class="p-float-label">
-            <InputText id="Email" name="Email" v-model="usuario.Email" type="text" class="p-d-box" />
-            <label for="Email">Correo electrónico</label>
-          </span>
-        </div>
-        <div class="p-mt-2">
-        <label for="perfiles" class="p-ml-2" style="font-size: 12px;">Perfiles</label>          
-        <div id="perfiles" class="p-grid p-mt-2 p-mx-1">
-          <div v-for="perfil of perfiles" :key="perfil.IdPerfil" class="p-col-6 p-field-checkbox">
-            <Checkbox :id="perfil.IdPerfil" name="perfil" :value="perfil" v-model="usuario.Perfiles" />
-            <label :for="perfil.IdPerfil">{{perfil.Nombre}}</label>
-          </div>
-        </div>
-        </div>
-        <div class="p-inputgroup p-mt-5">
-          <div class="p-field-checkbox">
-            <Checkbox id="ValidaEnAD" v-model="usuario.ValidaEnAD" :binary="true" />
-            <label for="Vigente">Valida en AD</label>
-          </div>
-        </div>
-        <div class="p-inputgroup p-mt-2">
-          <div class="p-field-checkbox">
-            <Checkbox id="Vigente" v-model="usuario.Vigente" :binary="true" />
-            <label for="Vigente">Vigente</label>
-          </div>
-        </div>
-      </div>
-      </form>
-
-      <template #footer>
-        <Button label="Cancelar" icon="pi pi-times" @click="closeUsuarioDialog" class="p-button-text"/>
-        <Button label="Grabar" icon="pi pi-check" @click="saveUsuario" autofocus />
-      </template>
-    </Dialog>
-  </div>
 </template>
 
 <script>
@@ -209,7 +153,7 @@ import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 import Dropdown from 'primevue/dropdown';
 
-import Dialog from 'primevue/dialog';
+import UsuarioDialog from '@/components/UsuarioDialog.vue';
 
 export default {
   data() {
@@ -345,8 +289,14 @@ export default {
       this.fetchData();
       this.loading = false;
     },
-    addUsuario() {
+    async addUsuario() {
       this.usuario = {};
+      const resp = await fetch(`api/Usuario/GetById/?IdUsuario=0`, {
+        headers: { 'Authorization': this.$store.state.token },
+      });
+      const usuarioDTO = await resp.json();
+      this.perfiles = usuarioDTO.PerfilesCbo;
+      this.organizaciones = usuarioDTO.Organizaciones;
       this.displayUsuarioDialog = true;
     },
     async editUsuario(IdUsuario) {
@@ -362,27 +312,16 @@ export default {
       this.usuario.Perfiles = this.perfiles.filter(perfil => usuarioDTO.Perfiles.includes(perfil.IdPerfil));
       this.displayUsuarioDialog = true;
     },
-    closeUsuarioDialog() {
-      this.Usuario = {};
-      this.displayUsuarioDialog = false;
-    },
-    async saveUsuario() {
-      this.usuario.Perfiles = this.usuario.Perfiles.map(perfil => perfil.IdPerfil);
-      const resp = await fetch('api/Usuario/Save', {
-        method: 'POST',
-        headers: { 'Content-type': 'application/json', 'Authorization': this.$store.state.token },
-        body: JSON.stringify(this.usuario)
-      });
-      if (resp.status !== 200) {
-        alert('Error al grabar usuario.');
-        return;
-      }
-      this.resetParameters();
-      this.fetchData();
-      this.displayUsuarioDialog = false;
-    },
     exportCSV() {
       this.$refs.dt.exportCSV();
+    },
+    usuarioDialogAction(e) {
+      this.displayUsuarioDialog = false;
+      if (e === 'save') {
+        this.resetParameters();
+        this.fetchData();
+        this.$refs.dt.resetPage();
+      }
     }
   },
   components: {
@@ -390,9 +329,9 @@ export default {
     Column,
     InputText,
     Button,
-    Dialog,
     Checkbox,
-    Dropdown
+    Dropdown,
+    UsuarioDialog
   }
 
 }
