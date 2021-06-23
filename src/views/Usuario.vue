@@ -151,7 +151,6 @@ import Column from 'primevue/column';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
-import Dropdown from 'primevue/dropdown';
 
 import UsuarioDialog from '@/components/UsuarioDialog.vue';
 
@@ -330,7 +329,6 @@ export default {
     InputText,
     Button,
     Checkbox,
-    Dropdown,
     UsuarioDialog
   }
 

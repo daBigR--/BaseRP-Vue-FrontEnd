@@ -35,47 +35,54 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
 
+import { ref } from 'vue';
+import { useStore } from 'vuex';
+import { useRoute, useRouter } from 'vue-router';
+
 import { useCookie } from "@vue-composable/cookie";
 
 export default {
   name: 'Login',
-  data() {
-    return {
-      usr: '',
-      pwd: ''
-    }
+  components: {
+    Button,
+    InputText,
+    Password
   },
-  methods: {
-    async login() {
+  setup() {
+    const usr = ref('');
+    const pwd = ref('');
+
+    const store = useStore();
+    const router = useRouter();
+    const route = useRoute();
+
+    const login = async () => {
       const userDTO = {
         IdOrganizacion: 1,
-        UserName: this.usr,
-        Password: this.pwd
+        UserName: usr.value,
+        Password: pwd.value
       };
-      const resp = await fetch('http://localhost:57258/api/Login/Login', {
+      const resp = await fetch('/api/Login/Login', {
         method: 'POST', 
         headers: { 'Content-type': 'application/json' },
         body: JSON.stringify(userDTO)
       });
       if (resp.status !== 200) {
-        alert("Username or password incorrect or don't exist.");
+        alert("Username or password incorrect or doesn't exist.");
         return;
       }
       const data = await resp.json();
-      this.$store.commit('loggedIn', data);
+      store.commit('loggedIn', data);
       const { setCookie } = useCookie("userInfo");
       setCookie(data, {expires: 0.25, SameSite: 'Lax'});
-      if (this.$route.params.previousRoute) {
-        this.$router.push({ name: this.$route.params.previousRoute });
-      } else {
-        this.$router.push({ name: 'Main' });
-      }
+      router.push({ name: route.params.previousRoute || 'Main' });
+    };
+
+    return {
+      usr,
+      pwd,
+      login
     }
-  },
-  components: {
-    Button,
-    InputText,
-    Password
   }
 }
 </script>

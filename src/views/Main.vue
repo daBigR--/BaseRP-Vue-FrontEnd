@@ -1,5 +1,6 @@
 <template>
   <div class="layout-wrapper layout-static" id="container">
+
     <TopBar @menu-toggle="onMenuToggle" @logout="logOut" />
 
     <transition name="layout-sidebar">
@@ -12,6 +13,7 @@
     <div class="layout-main">
       <router-view />
     </div>
+
   </div>
 </template>
 
@@ -19,40 +21,38 @@
 import TopBar from '../components/TopBar.vue';
 import UserProfile from '../components/UserProfile.vue'
 import Menu from '../components/Menu.vue';
-import Button from 'primevue/button';
-import { computed } from '@vue/runtime-core';
+
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+
 import { useCookie } from "@vue-composable/cookie";
 
 export default {
-  data() {
-    return {
-      dato: 1
-    }
-  },
-  methods: {
-    logOut() {
-      this.$store.commit('loggedOut');
-      const { removeCookie } = useCookie('userInfo');
-      removeCookie();
-      this.$router.push({ name: 'Login' })
-    },
-    onMenuToggle() {}
-  },
-  provide() {
-    return {
-      dato: computed( () => this.dato ),
-      actualizarDato: (nuevoValor) => this.dato = nuevoValor
-    }
-  },
   components: {
     TopBar,
     UserProfile,
-    Menu,
-    Button
+    Menu
+  },
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const logOut = () => {
+      store.commit('loggedOut');
+      const { removeCookie } = useCookie('userInfo');
+      removeCookie();
+      router.push({ name: 'Login' })
+    };
+
+    const onMenuToggle = () => {};
+    
+    return {
+      logOut,
+      onMenuToggle
+    }
   }
 }
 </script>
 
 <style scoped>
-
 </style>

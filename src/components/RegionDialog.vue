@@ -39,12 +39,15 @@ import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
 
+import { ref, computed, watch, toRefs } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
-  data() {
-    return {
-      displayDialog: false
-    }
+  components: {
+    Dialog,
+    InputText,
+    Checkbox,
+    Button
   },
   props: {
     modelValue: {
@@ -61,44 +64,42 @@ export default {
     'update:visible',
     'action'
   ],
-  computed: {
-    region: { 
-      get() { return this.modelValue },
-      set(val) { this.$emit('update:modelValue', val) }
-    }
-  },
-  watch: {
-    visible(newValue, oldValue) {
-      this.displayDialog = newValue;
-    },
-    displayDialog(newValue, oldValue) {
-      this.$emit('update:visible', newValue)
-    }
-  },
-  methods: {
-    cancelRegion() {
-      this.$emit('action', 'cancel');
-    },
-    async saveRegion() {
-      const regionDTO = this.region;
-		  regionDTO.UsuarioModifico = this.$store.state.userName;
+  setup(props, { emit }) {
+    const store = useStore();
+
+    const { modelValue, visible } = toRefs(props);
+    const displayDialog = ref(false);
+    watch(visible, (newValue, oldValue) => displayDialog.value = newValue);
+    watch(displayDialog, (newValue, oldValue) => emit('update:visible', newValue))
+
+    const region = computed({ 
+      get() { return modelValue.value },  
+      set(val) { emit('update:modelValue', val) }
+    });
+
+    const cancelRegion = () => emit('action', 'cancel');
+
+    const saveRegion = async () => {
+      const regionDTO = region.value;
+		  regionDTO.UsuarioModifico = store.state.userName;
       const resp = await fetch('api/Region/Save', {
         method: 'POST',
-        headers: { 'Content-type': 'application/json', 'Authorization': this.$store.state.token },
+        headers: { 'Content-type': 'application/json', 'Authorization': store.state.token },
         body: JSON.stringify(regionDTO)
       });
       if (resp.status !== 200) {
         alert('Error al actualizar región');
         return;
       }
-      this.$emit('action', 'save');
+      emit('action', 'save');
+    };
+
+    return {
+      displayDialog,
+      region,
+      cancelRegion,
+      saveRegion
     }
-  },
-  components: {
-    Dialog,
-    InputText,
-    Checkbox,
-    Button
   }
 }
 </script>
