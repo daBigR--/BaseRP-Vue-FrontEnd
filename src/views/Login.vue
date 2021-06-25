@@ -39,8 +39,6 @@ import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 
-import { useCookie } from "@vue-composable/cookie";
-
 export default {
   name: 'Login',
   components: {
@@ -73,8 +71,6 @@ export default {
       }
       const data = await resp.json();
       store.commit('loggedIn', data);
-      const { setCookie } = useCookie("userInfo");
-      setCookie(data, {expires: 0.25, SameSite: 'Lax'});
       router.push({ name: route.params.previousRoute || 'Main' });
     };
 

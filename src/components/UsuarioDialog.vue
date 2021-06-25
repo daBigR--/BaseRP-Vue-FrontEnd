@@ -9,7 +9,17 @@
 
       <form>
       <div class="card p-fluid">
-        <div class="p-inputgroup p-mt-1">
+        <div class="p-inputgroup">
+          <img :src="usuario.ImagenPerfil || 'assets/layout/images/profile.png'" class="uploaded-image p-mr-5" />
+            <div class="p-fileupload-buttonbar">
+              <span :class="['p-button p-component p-fileupload-choose', { 'p-focus': focused }]" @click="choose" @keydown.enter="choose" @focus="onFocus" @blur="onBlur" v-ripple tabindex="0">
+                <input ref="fileInput" type="file" @change="uploadImage" accept="image/*" autofocus />
+                <span class="p-button-icon p-button-icon-left pi pi-fw pi-upload"></span>
+                <span class="p-button-label">Cargar imagen</span>
+              </span>
+            </div>
+        </div>
+        <div class="p-inputgroup p-mt-5">
           <span class="p-float-label">
             <Dropdown v-model="usuario.IdOrganizacion" :options="organizaciones" optionLabel="Nombre" optionValue="IdOrganizacion" placeholder="" />
             <label for="Organizacion">Organización</label>
@@ -76,7 +86,8 @@ import Dropdown from 'primevue/dropdown';
 export default {
   data() {
     return {
-      displayDialog: false
+      displayDialog: false,
+      focused: false
     }
   },
   props: {
@@ -117,6 +128,22 @@ export default {
     }
   },
   methods: {
+    choose() {
+      this.$refs.fileInput.click();
+    },
+    onFocus() {
+      this.focused = true;
+    },
+    onBlur() {
+      this.focused = false;
+    },
+    
+    uploadImage(e) {
+      const reader = new FileReader();
+      reader.readAsDataURL(e.target.files[0]);
+      reader.onload = () => this.usuario.ImagenPerfil = reader.result;
+    },
+
     cancelUsuario() {
       this.$emit('action', 'cancel');
     },
@@ -145,8 +172,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  #perfiles {
-    border: 1px solid lightgrey;
-    border-radius: 3px;
-  }
+.uploaded-image {
+  display: flex;
+  max-width: 100px;
+  max-height: 100px;
+}
+#perfiles {
+  border: 1px solid lightgrey;
+  border-radius: 3px;
+}
+.p-button.p-fileupload-choose {
+    position: relative;
+    overflow: hidden;
+}
+
+.p-button.p-fileupload-choose input[type=file] {
+    display: none;
+}
+
+.p-fileupload-choose.p-fileupload-choose-selected input[type=file] {
+    display: none;
+}
+
+.p-fluid .p-fileupload .p-button {
+    width: auto;
+}
+
 </style>

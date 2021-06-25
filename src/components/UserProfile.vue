@@ -1,7 +1,7 @@
 <template>
 	<div class="layout-profile">
 		<div>
-			<img src="assets/layout/images/logo-grande.png" alt="" />
+			<img :src="$store.state.imagenPerfil  || 'assets/layout/images/profile.png'" alt="Imagen perfil" />
 		</div>
 		<button class="p-link layout-profile-link" @click="onClick">
 			<span class="username">{{ $store.state.nombreUsuario }}</span>
@@ -10,14 +10,13 @@
     <transition name="layout-submenu-wrapper">
       <ul v-show="expanded">
         <li><button class="p-link"><i class="pi pi-fw pi-user"></i><span>Account</span></button></li>
-        <li><button class="p-link" @click="logOut"><i class="pi pi-fw pi-power-off"></i><span>Logout</span></button></li>
+        <li><button class="p-link" @click="$emit('logout')"><i class="pi pi-fw pi-power-off"></i><span>Logout</span></button></li>
       </ul>
     </transition>
 	</div>
 </template>
 
 <script>
-  import { useCookie } from "@vue-composable/cookie";
 
   export default {
     data() {
@@ -25,13 +24,10 @@
         expanded: false
       }
     },
+    emits: [
+      'logout'
+    ],
     methods: {
-      logOut() {
-        this.$store.commit('loggedOut');
-        const { removeCookie } = useCookie('userInfo');
-        removeCookie();
-        this.$router.push({ name: 'Login' })
-      },
       onClick(event){
         this.expanded = !this.expanded;
         event.preventDefault();

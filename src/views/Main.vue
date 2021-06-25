@@ -5,7 +5,7 @@
 
     <transition name="layout-sidebar">
       <div class="layout-sidebar layout-sidebar-light" v-show="true">
-        <UserProfile />
+        <UserProfile @logout="logOut" />
         <Menu />
       </div>
     </transition>
@@ -25,8 +25,6 @@ import Menu from '../components/Menu.vue';
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
-import { useCookie } from "@vue-composable/cookie";
-
 export default {
   components: {
     TopBar,
@@ -39,8 +37,6 @@ export default {
 
     const logOut = () => {
       store.commit('loggedOut');
-      const { removeCookie } = useCookie('userInfo');
-      removeCookie();
       router.push({ name: 'Login' })
     };
 
